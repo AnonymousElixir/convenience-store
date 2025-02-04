@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Convenience Store</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400&display=swap" rel="stylesheet">
     <style>
         body {
             margin: 0;
@@ -12,20 +12,22 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background: linear-gradient(to bottom right, #2E2A47, #1A192E);
-            font-family: 'Poppins', sans-serif;
-            color: #E3DAFF;
+            background: linear-gradient(to bottom right, #1E1E2E, #12121A);
+            font-family: 'Inter', sans-serif;
+            color: #F1F1F1;
+            overflow: hidden;
         }
         .container {
             text-align: center;
-            background: rgba(40, 37, 66, 0.9);
+            background: rgba(30, 30, 46, 0.85);
             padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
         }
         h1 {
-            font-size: 42px;
-            font-weight: 300;
+            font-size: 48px;
+            font-weight: 400;
             margin-bottom: 10px;
         }
         p {
@@ -35,18 +37,31 @@
         }
         .join-button {
             display: inline-block;
-            padding: 12px 24px;
+            padding: 14px 28px;
             font-size: 18px;
-            color: #E3DAFF;
-            background: #5A48A6;
+            color: #FFF;
+            background: #7D5FFF;
             border: none;
-            border-radius: 25px;
+            border-radius: 30px;
             text-decoration: none;
             transition: background 0.3s ease, transform 0.2s ease;
         }
         .join-button:hover {
-            background: #7860D9;
-            transform: scale(1.05);
+            background: #927CFF;
+            transform: scale(1.08);
+        }
+        .snowflake {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.8;
+            animation: fall linear infinite;
+        }
+        @keyframes fall {
+            from { transform: translateY(-10vh); opacity: 1; }
+            to { transform: translateY(110vh); opacity: 0; }
         }
     </style>
 </head>
@@ -56,5 +71,20 @@
         <p>A cozy place to hang out</p>
         <a href="https://discord.gg/2hzSWTQKxp" class="join-button" target="_blank">Join the Server</a>
     </div>
+    <script>
+        function createSnowflakes() {
+            const snowflakeCount = 50;
+            for (let i = 0; i < snowflakeCount; i++) {
+                let snowflake = document.createElement("div");
+                snowflake.className = "snowflake";
+                snowflake.style.left = Math.random() * 100 + "vw";
+                snowflake.style.animationDuration = (Math.random() * 3 + 2) + "s";
+                snowflake.style.animationDelay = Math.random() * 5 + "s";
+                document.body.appendChild(snowflake);
+                setTimeout(() => snowflake.remove(), 5000);
+            }
+        }
+        setInterval(createSnowflakes, 500);
+    </script>
 </body>
 </html>
