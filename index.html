@@ -28,7 +28,7 @@
       100% { background-position: 0% 50%; }
     }
     
-    /* Canvas for snow (background layer) */
+    /* Canvas for snow effect (background layer) */
     #snowCanvas {
       position: absolute;
       top: 0;
@@ -101,19 +101,28 @@
   <div class="container">
     <h1>Convenience Store</h1>
     <p>A cozy place to hang out</p>
-    <a href="https://discord.gg/2hzSWTQKxp" class="join-button" target="_blank">Join the Server</a>
+    <a href="https://discord.gg/T4AxrTgak5" class="join-button" target="_blank">Join the Server</a>
   </div>
   
   <script>
-    /***********************
-     * Canvas Snow Effect  *
-     ***********************/
-    
+    /*******************************
+     * Canvas Snow Accumulation    *
+     *******************************/
     const canvas = document.getElementById('snowCanvas');
     const ctx = canvas.getContext('2d');
     
     let width = canvas.width = window.innerWidth;
     let height = canvas.height = window.innerHeight;
+    
+    // An array representing the current top y-coordinate of the snow pile at each x position.
+    let pile = new Array(width).fill(height);
+    
+    // Update pile array on resize
+    window.addEventListener('resize', () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+      pile = new Array(width).fill(height);
+    });
     
     // Track the mouse position for attraction effect
     const mouse = { x: -1000, y: -1000 };
@@ -122,12 +131,7 @@
       mouse.y = e.clientY;
     });
     
-    window.addEventListener('resize', () => {
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
-    });
-    
-    // Snowflake class with physics for falling and attraction
+    // Snowflake class with accumulation physics
     class Snowflake {
       constructor() {
         this.reset();
@@ -135,19 +139,19 @@
       reset() {
         this.x = Math.random() * width;
         this.y = Math.random() * -height;
-        this.radius = Math.random() * 3 + 2; // between 2 and 5
+        this.radius = Math.random() * 3 + 2; // between 2 and 5 px
         this.speedY = Math.random() * 1 + 0.5;
         this.speedX = Math.random() * 0.5 - 0.25;
         this.vx = this.speedX;
         this.vy = this.speedY;
       }
       update() {
-        // Compute attraction toward mouse if within 100px
+        // Attraction toward mouse
         const dx = mouse.x - this.x;
         const dy = mouse.y - this.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
         if (dist < 100) {
-          const force = (100 - dist) / 100; // stronger when closer
+          const force = (100 - dist) / 100;
           const angle = Math.atan2(dy, dx);
           this.vx += Math.cos(angle) * force * 0.05;
           this.vy += Math.sin(angle) * force * 0.05;
@@ -155,34 +159,72 @@
         // Update positions
         this.x += this.vx;
         this.y += this.vy;
-        // Slight friction on horizontal movement
+        // Apply slight friction to horizontal motion
         this.vx *= 0.99;
-        // Reset when off-screen
-        if (this.y > height || this.x < -this.radius || this.x > width + this.radius) {
+        
+        // Check collision with the snow pile
+        let ix = Math.floor(this.x);
+        if (ix < 0) ix = 0;
+        if (ix >= width) ix = width - 1;
+        // If the snowflake's bottom is at or below the pile level, accumulate
+        if (this.y + this.radius >= pile[ix] - 2) {
+          // "Stick" the snowflake to the pile over a small horizontal range for smoothness
+          const range = Math.floor(this.radius * 2);
+          for (let i = ix - range; i <= ix + range; i++) {
+            if (i >= 0 && i < width) {
+              // Raise the pile upward (i.e. lower the y value) if this flake lands higher than current pile
+              pile[i] = Math.min(pile[i], this.y - this.radius);
+            }
+          }
+          // Reset the snowflake so that it falls again from above
           this.reset();
-          this.y = -this.radius;
+        }
+        
+        // If it falls off the bottom (should rarely happen due to pile), reset it.
+        if (this.y - this.radius > height) {
+          this.reset();
         }
       }
       draw(ctx) {
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
         ctx.fill();
       }
     }
     
+    // Create a bunch of snowflakes
     const snowflakes = [];
     const maxSnowflakes = 200;
     for (let i = 0; i < maxSnowflakes; i++) {
       snowflakes.push(new Snowflake());
     }
     
+    // Draw the accumulated snow pile
+    function drawPile() {
+      ctx.fillStyle = 'white';
+      ctx.beginPath();
+      ctx.moveTo(0, height);
+      for (let x = 0; x < width; x++) {
+        ctx.lineTo(x, pile[x]);
+      }
+      ctx.lineTo(width, height);
+      ctx.closePath();
+      ctx.fill();
+    }
+    
     function animateSnow() {
       ctx.clearRect(0, 0, width, height);
+      
+      // Draw the accumulated snow pile first
+      drawPile();
+      
+      // Update and draw each snowflake
       for (const flake of snowflakes) {
         flake.update();
         flake.draw(ctx);
       }
+      
       requestAnimationFrame(animateSnow);
     }
     
