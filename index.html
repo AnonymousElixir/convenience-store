@@ -1,112 +1,192 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Convenience Store</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400&display=swap" rel="stylesheet">
-    <style>
-        body {
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background: linear-gradient(to bottom right, #1E1E2E, #12121A);
-            font-family: 'Inter', sans-serif;
-            color: #F1F1F1;
-            overflow: hidden;
-            position: relative;
-        }
-        .container {
-            text-align: center;
-            background: rgba(30, 30, 46, 0.85);
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
-            position: relative;
-            z-index: 10;
-        }
-        h1 {
-            font-size: 48px;
-            font-weight: 400;
-            margin-bottom: 10px;
-        }
-        p {
-            font-size: 18px;
-            opacity: 0.8;
-            margin-bottom: 20px;
-        }
-        .join-button {
-            display: inline-block;
-            padding: 14px 28px;
-            font-size: 18px;
-            color: #FFF;
-            background: #7D5FFF;
-            border: none;
-            border-radius: 30px;
-            text-decoration: none;
-            transition: background 0.3s ease, transform 0.2s ease;
-        }
-        .join-button:hover {
-            background: #927CFF;
-            transform: scale(1.08);
-        }
-        .snowflake {
-            position: absolute;
-            width: 8px;
-            height: 8px;
-            background: white;
-            border-radius: 50%;
-            opacity: 0.6;
-            top: -10px;
-            z-index: 1;
-            transition: transform 0.2s ease-out;
-        }
-        .snow-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 0;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Convenience Store</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400&display=swap" rel="stylesheet" />
+  <style>
+    /* Full-page animated gradient background */
+    body {
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: linear-gradient(45deg, #1E1E2E, #12121A, #1E1E2E);
+      background-size: 400% 400%;
+      animation: gradientAnimation 20s ease infinite;
+      font-family: 'Inter', sans-serif;
+      color: #F1F1F1;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    @keyframes gradientAnimation {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    
+    /* Canvas for snow (background layer) */
+    #snowCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+    
+    /* Content container with floating effect */
+    .container {
+      text-align: center;
+      background: rgba(30, 30, 46, 0.85);
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+      position: relative;
+      z-index: 10;
+      animation: float 3s ease-in-out infinite;
+      transition: transform 0.3s ease;
+    }
+    
+    .container:hover {
+      transform: scale(1.02);
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    
+    h1 {
+      font-size: 48px;
+      font-weight: 400;
+      margin-bottom: 10px;
+    }
+    
+    p {
+      font-size: 18px;
+      opacity: 0.8;
+      margin-bottom: 20px;
+    }
+    
+    .join-button {
+      display: inline-block;
+      padding: 14px 28px;
+      font-size: 18px;
+      color: #FFF;
+      background: #7D5FFF;
+      border: none;
+      border-radius: 30px;
+      text-decoration: none;
+      transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    }
+    
+    .join-button:hover {
+      background: #927CFF;
+      transform: scale(1.08);
+      box-shadow: 0 0 15px rgba(121, 124, 255, 0.6);
+    }
+  </style>
 </head>
 <body>
-    <div class="snow-container"></div>
-    <div class="container">
-        <h1>Convenience Store</h1>
-        <p>A cozy place to hang out</p>
-        <a href="https://discord.gg/2hzSWTQKxp" class="join-button" target="_blank">Join the Server</a>
-    </div>
-    <script>
-        function createSnowflakes() {
-            const snowflakeCount = 50;
-            const container = document.querySelector(".snow-container");
-            for (let i = 0; i < snowflakeCount; i++) {
-                let snowflake = document.createElement("div");
-                snowflake.className = "snowflake";
-                snowflake.style.left = Math.random() * 100 + "vw";
-                snowflake.style.animationDuration = (Math.random() * 3 + 2) + "s";
-                snowflake.style.animationDelay = Math.random() * 5 + "s";
-                container.appendChild(snowflake);
-                setTimeout(() => snowflake.remove(), 5000);
-            }
+  <!-- Canvas layer for the snow effect -->
+  <canvas id="snowCanvas"></canvas>
+  
+  <!-- Main content container -->
+  <div class="container">
+    <h1>Convenience Store</h1>
+    <p>A cozy place to hang out</p>
+    <a href="https://discord.gg/2hzSWTQKxp" class="join-button" target="_blank">Join the Server</a>
+  </div>
+  
+  <script>
+    /***********************
+     * Canvas Snow Effect  *
+     ***********************/
+    
+    const canvas = document.getElementById('snowCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+    
+    // Track the mouse position for attraction effect
+    const mouse = { x: -1000, y: -1000 };
+    window.addEventListener('mousemove', (e) => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+    });
+    
+    window.addEventListener('resize', () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    });
+    
+    // Snowflake class with physics for falling and attraction
+    class Snowflake {
+      constructor() {
+        this.reset();
+      }
+      reset() {
+        this.x = Math.random() * width;
+        this.y = Math.random() * -height;
+        this.radius = Math.random() * 3 + 2; // between 2 and 5
+        this.speedY = Math.random() * 1 + 0.5;
+        this.speedX = Math.random() * 0.5 - 0.25;
+        this.vx = this.speedX;
+        this.vy = this.speedY;
+      }
+      update() {
+        // Compute attraction toward mouse if within 100px
+        const dx = mouse.x - this.x;
+        const dy = mouse.y - this.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 100) {
+          const force = (100 - dist) / 100; // stronger when closer
+          const angle = Math.atan2(dy, dx);
+          this.vx += Math.cos(angle) * force * 0.05;
+          this.vy += Math.sin(angle) * force * 0.05;
         }
-        setInterval(createSnowflakes, 500);
-
-        document.addEventListener("mousemove", (event) => {
-            document.querySelectorAll(".snowflake").forEach(snowflake => {
-                const dx = event.clientX - snowflake.offsetLeft;
-                const dy = event.clientY - snowflake.offsetTop;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                const force = Math.max(0, 50 - distance) / 50;
-                snowflake.style.transform = `translate(${dx * force * 0.2}px, ${dy * force * 0.2}px)`;
-            });
-        });
-    </script>
+        // Update positions
+        this.x += this.vx;
+        this.y += this.vy;
+        // Slight friction on horizontal movement
+        this.vx *= 0.99;
+        // Reset when off-screen
+        if (this.y > height || this.x < -this.radius || this.x > width + this.radius) {
+          this.reset();
+          this.y = -this.radius;
+        }
+      }
+      draw(ctx) {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+        ctx.fill();
+      }
+    }
+    
+    const snowflakes = [];
+    const maxSnowflakes = 200;
+    for (let i = 0; i < maxSnowflakes; i++) {
+      snowflakes.push(new Snowflake());
+    }
+    
+    function animateSnow() {
+      ctx.clearRect(0, 0, width, height);
+      for (const flake of snowflakes) {
+        flake.update();
+        flake.draw(ctx);
+      }
+      requestAnimationFrame(animateSnow);
+    }
+    
+    animateSnow();
+  </script>
 </body>
 </html>
