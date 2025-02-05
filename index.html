@@ -61,12 +61,8 @@
             border-radius: 50%;
             opacity: 0.6;
             top: -10px;
-            animation: fall linear infinite;
             z-index: 1;
-        }
-        @keyframes fall {
-            from { transform: translateY(-10vh); opacity: 1; }
-            to { transform: translateY(100vh); opacity: 0; }
+            transition: transform 0.2s ease-out;
         }
         .snow-container {
             position: absolute;
@@ -101,6 +97,16 @@
             }
         }
         setInterval(createSnowflakes, 500);
+
+        document.addEventListener("mousemove", (event) => {
+            document.querySelectorAll(".snowflake").forEach(snowflake => {
+                const dx = event.clientX - snowflake.offsetLeft;
+                const dy = event.clientY - snowflake.offsetTop;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                const force = Math.max(0, 50 - distance) / 50;
+                snowflake.style.transform = `translate(${dx * force * 0.2}px, ${dy * force * 0.2}px)`;
+            });
+        });
     </script>
 </body>
 </html>
