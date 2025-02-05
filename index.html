@@ -6,7 +6,6 @@
   <title>Convenience Store</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400&display=swap" rel="stylesheet" />
   <style>
-    /* Full-page animated gradient background */
     body {
       margin: 0;
       display: flex;
@@ -21,14 +20,11 @@
       overflow: hidden;
       position: relative;
     }
-    
     @keyframes gradientAnimation {
       0% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
     }
-    
-    /* Canvas for snow effect (background layer) */
     #snowCanvas {
       position: absolute;
       top: 0;
@@ -38,8 +34,6 @@
       z-index: 0;
       pointer-events: none;
     }
-    
-    /* Content container with floating effect */
     .container {
       text-align: center;
       background: rgba(30, 30, 46, 0.85);
@@ -94,10 +88,7 @@
   </style>
 </head>
 <body>
-  <!-- Canvas layer for the snow effect -->
   <canvas id="snowCanvas"></canvas>
-  
-  <!-- Main content container -->
   <div class="container">
     <h1>Convenience Store</h1>
     <p>A cozy place to hang out</p>
@@ -106,33 +97,21 @@
   </div>
   
   <script>
-    /*******************************
-     * Canvas Snow Accumulation    *
-     *******************************/
     const canvas = document.getElementById('snowCanvas');
     const ctx = canvas.getContext('2d');
-    
     let width = canvas.width = window.innerWidth;
     let height = canvas.height = window.innerHeight;
-    
-    // The pile array holds the current top y-coordinate of the snow pile for each x position.
     let pile = new Array(width).fill(height);
-    
-    // Update the canvas dimensions and pile array on resize.
     window.addEventListener('resize', () => {
       width = canvas.width = window.innerWidth;
       height = canvas.height = window.innerHeight;
       pile = new Array(width).fill(height);
     });
-    
-    // Track the mouse position for attraction effect.
     const mouse = { x: -1000, y: -1000 };
     window.addEventListener('mousemove', (e) => {
       mouse.x = e.clientX;
       mouse.y = e.clientY;
     });
-    
-    // Snowflake class with accumulation physics.
     class Snowflake {
       constructor() {
         this.reset();
@@ -140,14 +119,13 @@
       reset() {
         this.x = Math.random() * width;
         this.y = Math.random() * -height;
-        this.radius = Math.random() * 3 + 2; // between 2 and 5 px
+        this.radius = Math.random() * 3 + 2;
         this.speedY = Math.random() * 1 + 0.5;
         this.speedX = Math.random() * 0.5 - 0.25;
         this.vx = this.speedX;
         this.vy = this.speedY;
       }
       update() {
-        // Attraction toward mouse.
         const dx = mouse.x - this.x;
         const dy = mouse.y - this.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
@@ -157,30 +135,21 @@
           this.vx += Math.cos(angle) * force * 0.05;
           this.vy += Math.sin(angle) * force * 0.05;
         }
-        // Update positions.
         this.x += this.vx;
         this.y += this.vy;
-        // Apply slight friction to horizontal motion.
         this.vx *= 0.99;
-        
-        // Check collision with the snow pile.
         let ix = Math.floor(this.x);
         if (ix < 0) ix = 0;
         if (ix >= width) ix = width - 1;
-        // When the flake reaches the current pile level, accumulate.
         if (this.y + this.radius >= pile[ix] - 2) {
-          // Spread the effect over a small range for smooth accumulation.
           const range = Math.floor(this.radius * 2);
           for (let i = ix - range; i <= ix + range; i++) {
             if (i >= 0 && i < width) {
-              // Raise the pile upward if the flake lands above the current pile.
               pile[i] = Math.min(pile[i], this.y - this.radius);
             }
           }
           this.reset();
         }
-        
-        // Reset if the flake falls off the bottom (should rarely happen).
         if (this.y - this.radius > height) {
           this.reset();
         }
@@ -192,17 +161,12 @@
         ctx.fill();
       }
     }
-    
-    // Create a collection of snowflakes.
     const snowflakes = [];
     const maxSnowflakes = 200;
     for (let i = 0; i < maxSnowflakes; i++) {
       snowflakes.push(new Snowflake());
     }
-    
-    // Smooth the pile array to create a gentle, sliding effect.
     function smoothPile() {
-      // Create a copy of the current pile.
       let smoothed = new Array(width);
       for (let i = 0; i < width; i++) {
         if (i === 0) {
@@ -213,15 +177,11 @@
           smoothed[i] = (pile[i - 1] + pile[i] + pile[i + 1]) / 3;
         }
       }
-      // Gradually update the original pile with the smoothed values.
       for (let i = 0; i < width; i++) {
-        // Using a small factor keeps the smoothing gentle.
         pile[i] = pile[i] * 0.95 + smoothed[i] * 0.05;
       }
     }
-    
-    // Draw the accumulated snow pile.
-    function drawPile() {
+  function drawPile() {
       ctx.fillStyle = 'white';
       ctx.beginPath();
       ctx.moveTo(0, height);
@@ -232,25 +192,16 @@
       ctx.closePath();
       ctx.fill();
     }
-    
     function animateSnow() {
       ctx.clearRect(0, 0, width, height);
-      
-      // Smooth the pile for a more natural look.
       smoothPile();
-      
-      // Draw the accumulated snow pile first.
       drawPile();
-      
-      // Update and draw each snowflake.
       for (const flake of snowflakes) {
         flake.update();
         flake.draw(ctx);
-      }
-      
+      } 
       requestAnimationFrame(animateSnow);
     }
-    
     animateSnow();
   </script>
 </body>
